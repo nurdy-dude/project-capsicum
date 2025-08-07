@@ -12,7 +12,6 @@ import { gardenRouter } from './routes/garden';
 import { communityRouter } from './routes/community';
 import { profileRouter } from './routes/profile';
 import { aiRouter } from './routes/ai';
-import { authMiddleware } from './middleware/auth';
 
 
 const app = express();
@@ -83,10 +82,10 @@ app.use(express.json({ limit: '10mb' })); // Allow larger payloads for images
 
 // API routes
 app.use('/api/auth', authRouter);
-app.use('/api/ai', authMiddleware, aiRouter);
-app.use('/api/garden', authMiddleware, gardenRouter);
-app.use('/api/community', authMiddleware, communityRouter);
-app.use('/api/profile', authMiddleware, profileRouter);
+app.use('/api/ai', aiRouter);
+app.use('/api/garden', gardenRouter);
+app.use('/api/community', communityRouter);
+app.use('/api/profile', profileRouter);
 
 app.get('/api', (req, res) => {
     res.send('Project Capsicum API is running!');
