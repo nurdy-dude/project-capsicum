@@ -3,7 +3,7 @@ import { pool } from '../server';
 import { authMiddleware } from '../middleware/auth';
 
 export const communityRouter = express.Router();
-communityRouter.use(authMiddleware);
+communityRouter.use('/', authMiddleware);
 
 // Get all community posts
 communityRouter.get('/posts', async (req, res) => {

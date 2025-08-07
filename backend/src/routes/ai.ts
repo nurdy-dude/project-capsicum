@@ -4,7 +4,7 @@ import type { WeatherData, Diagnosis, ChiliData } from '../../../utils/types';
 import { authMiddleware } from '../middleware/auth';
 
 export const aiRouter = express.Router();
-aiRouter.use(authMiddleware);
+aiRouter.use('/', authMiddleware);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 

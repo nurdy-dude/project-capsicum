@@ -3,7 +3,7 @@ import { pool } from '../server';
 import { authMiddleware } from '../middleware/auth';
 
 export const profileRouter = express.Router();
-profileRouter.use(authMiddleware);
+profileRouter.use('/', authMiddleware);
 
 // Get user profile (username) and their unlocked achievements
 profileRouter.get('/', async (req, res) => {

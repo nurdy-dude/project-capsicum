@@ -3,7 +3,7 @@ import { pool } from '../server';
 import { authMiddleware } from '../middleware/auth';
 
 export const gardenRouter = express.Router();
-gardenRouter.use(authMiddleware);
+gardenRouter.use('/', authMiddleware);
 
 // Get all plants for the logged-in user
 gardenRouter.get('/plants', async (req, res) => {
