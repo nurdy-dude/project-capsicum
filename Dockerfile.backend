@@ -1,0 +1,38 @@
+# Stage 1: Build the TypeScript application
+FROM node:20-alpine AS builder
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json files from both the root and backend directory
+COPY package*.json ./
+COPY backend/package*.json ./backend/
+
+# Go into the backend directory and install dependencies
+WORKDIR /app/backend
+RUN npm install
+
+# Copy the rest of the backend source code
+COPY backend/ .
+
+# Build the TypeScript code into JavaScript
+# The output will be in the 'dist' directory
+RUN npm run build
+
+# Stage 2: Run the application in a minimal Node.js environment
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy only the necessary files from the builder stage
+COPY --from=builder /app/backend/package.json ./package.json
+COPY --from=builder /app/backend/dist ./dist
+
+# Install only production dependencies
+RUN npm install --omit=dev
+
+# Expose the port the server will run on
+EXPOSE 3000
+
+# Command to start the server
+CMD ["node", "dist/server.js"]

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # The Frontend service serves the React application using Nginx.
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      # Expose the frontend on port 8080 of your host machine.
+      # You can access the app at http://<your-server-ip>:8080
+      - "8080:80"
+    depends_on:
+      - backend
+
+  # The Backend service is the Node.js/Express API that handles all logic.
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    # The '.env' file in your project root is automatically used here
+    # to provide values for the variables below.
+    environment:
+      # This URL tells the backend how to connect to the 'db' service.
+      - DATABASE_URL=postgres://capsicum_user:strongpassword@db:5432/project_capsicum
+      # IMPORTANT: Change this to a long, random, secret string in your .env file
+      - JWT_SECRET=${JWT_SECRET}
+      # Passes the API key from your .env file into the container.
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # The Database service runs PostgreSQL.
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U capsicum_user -d project_capsicum"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_DB=project_capsicum
+      - POSTGRES_USER=capsicum_user
+      - POSTGRES_PASSWORD=strongpassword
+    volumes:
+      # This ensures your database data persists on the host machine
+      # even if the container is removed and recreated.
+      - postgres_data:/var/lib/postgresql/data
+
+# Defines the named volume used by the database service.
+volumes:
+  postgres_data:
