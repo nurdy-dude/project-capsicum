@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { eventTypes, eventIcons } from '../utils/constants';
 import { fileToDataUrl } from '../utils/helpers';
 import type { Plant, JournalEntry, JournalEntryType } from '../utils/types';
@@ -13,9 +13,22 @@ export const PlantJournal = ({ plant, onBack, onAddEntry, onDeletePlant }: { pla
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             setEntryImage(file);
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
             setImagePreview(URL.createObjectURL(file));
         }
     };
+    
+    // Cleanup effect for object URL
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
 
     const handleAddEntry = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,7 +45,7 @@ export const PlantJournal = ({ plant, onBack, onAddEntry, onDeletePlant }: { pla
             setEntryType('Note');
             setEntryNotes("");
             setEntryImage(null);
-            setImagePreview(null);
+            setImagePreview(null); // This will trigger the cleanup effect
         }
     };
     
@@ -77,7 +90,7 @@ export const PlantJournal = ({ plant, onBack, onAddEntry, onDeletePlant }: { pla
                     {plant.entries.length === 0 ? (
                         <p className="empty-state">No entries yet. Add one above!</p>
                     ) : (
-                        [...plant.entries].reverse().map(entry => (
+                        [...plant.entries].map(entry => (
                             <div key={entry.id} className="entry-card">
                                 <div className="entry-header">
                                     <span className="entry-icon">{eventIcons[entry.type]}</span>
